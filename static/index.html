@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS 챗봇</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .chat-container {
+            width: 400px;
+            max-width: 95vw;
+            height: 600px;
+            max-height: 90vh;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chat-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chat-header p {
+            font-size: 12px;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-break: keep-all;
+            overflow-wrap: break-word;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            background: #f0f0f0;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.typing {
+            align-self: flex-start;
+            background: #f0f0f0;
+            color: #999;
+        }
+
+        .message .source-tag {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .source-tag.template {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .source-tag.ai {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .quick-buttons {
+            padding: 8px 16px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 8px 14px;
+            border: 1px solid #667eea;
+            border-radius: 20px;
+            background: white;
+            color: #667eea;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .chat-input-area {
+            padding: 12px 16px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 24px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input-area input:focus {
+            border-color: #667eea;
+        }
+
+        .chat-input-area button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .chat-input-area button:hover { opacity: 0.9; }
+        .chat-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>고객 상담 챗봇</h1>
+            <p>무엇이든 편하게 물어보세요!</p>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                안녕하세요! 무엇을 도와드릴까요? 😊<br>
+                아래 버튼을 누르거나 직접 질문해 주세요.
+            </div>
+        </div>
+
+        <div class="quick-buttons" id="quickButtons">
+            <button class="quick-btn" onclick="sendQuick('배송 조회는 어떻게 하나요?')">📦 배송 조회</button>
+            <button class="quick-btn" onclick="sendQuick('반품/교환 방법을 알려주세요')">🔄 반품/교환</button>
+            <button class="quick-btn" onclick="sendQuick('환불은 어떻게 진행되나요?')">💰 환불 안내</button>
+            <button class="quick-btn" onclick="sendQuick('영업시간이 어떻게 되나요?')">🕐 영업시간</button>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="messageInput" placeholder="메시지를 입력하세요..."
+                   onkeypress="if(event.key==='Enter') sendMessage()">
+            <button id="sendBtn" onclick="sendMessage()">전송</button>
+        </div>
+    </div>
+
+    <script>
+        // 서버 주소 (배포 시 실제 서버 URL로 변경)
+        const API_URL = window.location.origin;
+        const SESSION_ID = 'session_' + Math.random().toString(36).substring(2, 10);
+
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        function addMessage(text, isUser, source) {
+            const div = document.createElement('div');
+            div.className = `message ${isUser ? 'user' : 'bot'}`;
+
+            if (!isUser && source) {
+                const tag = document.createElement('span');
+                tag.className = `source-tag ${source}`;
+                tag.textContent = source === 'template' ? '자동응답' : 'AI 응답';
+                div.appendChild(tag);
+                div.appendChild(document.createElement('br'));
+            }
+
+            // 줄바꿈 처리
+            const lines = text.split('\n');
+            lines.forEach((line, i) => {
+                div.appendChild(document.createTextNode(line));
+                if (i < lines.length - 1) div.appendChild(document.createElement('br'));
+            });
+
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            const div = document.createElement('div');
+            div.className = 'message typing';
+            div.id = 'typingIndicator';
+            div.textContent = '답변 작성 중...';
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTyping() {
+            const el = document.getElementById('typingIndicator');
+            if (el) el.remove();
+        }
+
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text) return;
+
+            addMessage(text, true);
+            messageInput.value = '';
+            sendBtn.disabled = true;
+            showTyping();
+
+            try {
+                const res = await fetch(`${API_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text, session_id: SESSION_ID })
+                });
+                const data = await res.json();
+                removeTyping();
+
+                if (data.reply) {
+                    addMessage(data.reply, false, data.source);
+                } else {
+                    addMessage('죄송합니다. 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', false);
+                }
+            } catch (err) {
+                removeTyping();
+                addMessage('서버 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.', false);
+            }
+
+            sendBtn.disabled = false;
+            messageInput.focus();
+        }
+
+        function sendQuick(text) {
+            messageInput.value = text;
+            sendMessage();
+        }
+    </script>
+</body>
+</html>
