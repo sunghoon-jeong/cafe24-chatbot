@@ -44,7 +44,7 @@
             bottom: 96px;
             right: 24px;
             width: 380px;
-            height: 520px;
+            height: 70vh;
             max-width: calc(100vw - 32px);
             max-height: calc(100vh - 120px);
             border: none;
