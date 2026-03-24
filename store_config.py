@@ -409,7 +409,7 @@ TEMPLATES = [
             "• 유효기간: 지급일로부터 1년\n"
             "• 회원 전용 (타인 양도 불가)\n"
             "• 회원 탈퇴 시 소멸\n\n"
-            f"👉 내 적립금 확인: {DOMAIN}/myshop/mileage/history.html"
+            "적립금 관련 추가 문의가 있으시면 편하게 말씀해 주세요!"
         ),
     },
     {
@@ -602,7 +602,7 @@ TEMPLATES = [
         "answer": (
             "👤 마이페이지에서 다양한 정보를 확인하실 수 있습니다!\n\n"
             f"• 주문내역: {DOMAIN}/myshop/order/list.html\n"
-            f"• 적립금: {DOMAIN}/myshop/mileage/history.html\n"
+            f"• 쿠폰/적립금: {DOMAIN}/myshop/coupon/list.html\n"
             f"• 쿠폰: {DOMAIN}/myshop/coupon/list.html\n"
             f"• 위시리스트: {DOMAIN}/myshop/wish/list.html\n"
             f"• 회원정보 수정: {DOMAIN}/myshop/info.html"
