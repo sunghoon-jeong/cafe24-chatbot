@@ -5,11 +5,13 @@
  *
  * <script>
  *   window.CS_CHATBOT_URL = "https://your-server-url.com";
+ *   window.CS_CHATBOT_MEMBER_ID = "{$member_id}";
  * </script>
  * <script src="https://your-server-url.com/static/widget.js"></script>
  */
 (function () {
     const SERVER = window.CS_CHATBOT_URL || '';
+    const MEMBER_ID = (window.CS_CHATBOT_MEMBER_ID || '').trim();
     const SESSION_ID = 'session_' + Math.random().toString(36).substring(2, 10);
     let isOpen = false;
 
@@ -80,6 +82,32 @@
     iframe.title = '고객 상담 챗봇';
     chatWindow.appendChild(iframe);
     document.body.appendChild(chatWindow);
+
+    // 로그인 안내 오버레이
+    const loginOverlay = document.createElement('div');
+    loginOverlay.id = 'cs-chat-login';
+    loginOverlay.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:32px;text-align:center;">
+            <div style="font-size:48px;margin-bottom:16px;">🔒</div>
+            <h2 style="font-size:18px;font-weight:600;color:#333;margin-bottom:8px;">로그인이 필요합니다</h2>
+            <p style="font-size:14px;color:#666;margin-bottom:24px;line-height:1.6;">
+                챗봇 상담은 회원 전용 서비스입니다.<br>로그인 후 이용해 주세요.
+            </p>
+            <a href="/member/login.html" style="
+                display:inline-block;padding:12px 32px;
+                background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+                color:white;border-radius:24px;text-decoration:none;
+                font-size:14px;font-weight:600;
+            ">로그인하기</a>
+        </div>
+    `;
+    loginOverlay.style.cssText = 'width:100%;height:100%;background:white;border-radius:16px;';
+
+    // 비로그인 시 iframe 대신 로그인 안내 표시
+    if (!MEMBER_ID) {
+        chatWindow.removeChild(iframe);
+        chatWindow.appendChild(loginOverlay);
+    }
 
     toggleBtn.addEventListener('click', function () {
         isOpen = !isOpen;

@@ -170,20 +170,24 @@
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <h1>고객 상담 챗봇</h1>
+            <h1>셀렉띵 고객센터</h1>
             <p>무엇이든 편하게 물어보세요!</p>
         </div>
 
         <div class="chat-messages" id="chatMessages">
             <div class="message bot">
-                안녕하세요! 무엇을 도와드릴까요? 😊<br>
-                아래 버튼을 누르거나 직접 질문해 주세요.
+                안녕하세요! 셀렉띵 고객센터입니다 😊<br><br>
+                배송, 반품/교환, 환불, 적립금 등<br>
+                궁금하신 내용을 편하게 질문해 주세요!<br><br>
+                💡 오픈 초기라 일부 안내가 정확하지 않을 수 있어요.<br>
+                아래 버튼을 누르거나 직접 질문해 주세요!
             </div>
         </div>
 
         <div class="quick-buttons" id="quickButtons">
             <button class="quick-btn" onclick="sendQuick('배송 조회는 어떻게 하나요?')">📦 배송 조회</button>
             <button class="quick-btn" onclick="sendQuick('반품/교환 방법을 알려주세요')">🔄 반품/교환</button>
+            <button class="quick-btn" onclick="sendQuick('교환 및 반품 접수하고 싶어요')">📋 교환&반품 접수</button>
             <button class="quick-btn" onclick="sendQuick('환불은 어떻게 진행되나요?')">💰 환불 안내</button>
             <button class="quick-btn" onclick="sendQuick('영업시간이 어떻게 되나요?')">🕐 영업시간</button>
         </div>
@@ -216,10 +220,25 @@
                 div.appendChild(document.createElement('br'));
             }
 
-            // 줄바꿈 처리
+            // 줄바꿈 + URL 하이퍼링크 처리
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
             const lines = text.split('\n');
             lines.forEach((line, i) => {
-                div.appendChild(document.createTextNode(line));
+                const parts = line.split(urlRegex);
+                parts.forEach(part => {
+                    if (urlRegex.test(part)) {
+                        const a = document.createElement('a');
+                        a.href = part;
+                        a.textContent = part;
+                        a.target = '_blank';
+                        a.style.color = isUser ? '#e0e0ff' : '#667eea';
+                        a.style.wordBreak = 'break-all';
+                        div.appendChild(a);
+                    } else {
+                        div.appendChild(document.createTextNode(part));
+                    }
+                    urlRegex.lastIndex = 0;
+                });
                 if (i < lines.length - 1) div.appendChild(document.createElement('br'));
             });
 
