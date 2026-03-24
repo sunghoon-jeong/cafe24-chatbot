@@ -39,6 +39,16 @@
         }
         #cs-chat-toggle:hover { transform: scale(1.1); }
 
+        /* 배경 오버레이 */
+        #cs-chat-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 99997;
+            display: none;
+        }
+        #cs-chat-overlay.open { display: block; }
+
         #cs-chat-window {
             position: fixed;
             bottom: 96px;
@@ -57,11 +67,36 @@
         }
         #cs-chat-window.open { display: block; }
 
+        /* 모바일 반응형: 전체화면 */
+        @media (max-width: 500px) {
+            #cs-chat-window {
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                max-height: 100%;
+                border-radius: 0;
+            }
+        }
+
         #cs-chat-iframe {
             width: 100%;
             height: 100%;
             border: none;
             border-radius: 16px;
+        }
+        @media (max-width: 500px) {
+            #cs-chat-iframe { border-radius: 0; }
+        }
+
+        /* 채팅 열렸을 때 body 스크롤 방지 */
+        body.cs-chat-open {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
         }
     `;
     document.head.appendChild(style);
@@ -109,11 +144,38 @@
         chatWindow.appendChild(loginOverlay);
     }
 
+    // 배경 오버레이
+    const overlay = document.createElement('div');
+    overlay.id = 'cs-chat-overlay';
+    document.body.appendChild(overlay);
+
+    let scrollY = 0;
+
+    function openChat() {
+        isOpen = true;
+        scrollY = window.scrollY;
+        chatWindow.classList.add('open');
+        overlay.classList.add('open');
+        document.body.classList.add('cs-chat-open');
+        document.body.style.top = -scrollY + 'px';
+        toggleBtn.innerHTML = '✕';
+        toggleBtn.setAttribute('aria-label', '고객 상담 챗봇 닫기');
+    }
+
+    function closeChat() {
+        isOpen = false;
+        chatWindow.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.classList.remove('cs-chat-open');
+        document.body.style.top = '';
+        window.scrollTo(0, scrollY);
+        toggleBtn.innerHTML = '💬';
+        toggleBtn.setAttribute('aria-label', '고객 상담 챗봇 열기');
+    }
+
     toggleBtn.addEventListener('click', function () {
-        isOpen = !isOpen;
-        chatWindow.classList.toggle('open', isOpen);
-        toggleBtn.innerHTML = isOpen ? '✕' : '💬';
-        toggleBtn.setAttribute('aria-label',
-            isOpen ? '고객 상담 챗봇 닫기' : '고객 상담 챗봇 열기');
+        isOpen ? closeChat() : openChat();
     });
+
+    overlay.addEventListener('click', closeChat);
 })();
