@@ -1,3 +1,6 @@
+// ── 셀렉띵 할인율 표시 보장 ──
+(function(){var s=document.createElement('script');s.src='https://selectthing.com/select/fix_discount.js';document.head.appendChild(s);})();
+
 /**
  * 카페24 쇼핑몰 챗봇 위젯
  *
